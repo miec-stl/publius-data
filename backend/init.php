@@ -11,6 +11,7 @@
 	);
 
 	include_once('poplicola.php');
-	include_once('geojson.php')
+	include_once('geojson.php');
+	include_once('leaflet-php.php');
 
 ?>

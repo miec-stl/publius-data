@@ -64,33 +64,28 @@ try {
 	<!-- Div placeholder for leaflet map -->
 	<div id='map'></div>
 
-	<!-- Create the interactive map content with JavaScript (.js) -->
+	<!-- Leaflet Javascript -->
 	<script>
-		/* Set up the initial map center and zoom level */
-		var map = L.map('map', {
-			center: [38.62727, -90.19789],
-			zoom: 12,
-			scrollWheelZoom: false
-		});
-
-		/* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
-		L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png', {
-			attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-		}).addTo(map);
-
-		/* Display a point marker with pop-up text */
-		L.marker([38.62727, -90.19789]).addTo(map)
-		.bindPopup("Insert pop-up text here");
-
-		<?php
-		if (!is_null($GeoJsonString)) {
-			echo "
-				const ZipGeoJsonData = $GeoJsonString;
-				L.geoJson(ZipGeoJsonData, {}).addTo(map);
-			";
-		}
+		<?php 
+			$PrimaryMapProps = array(
+				'MapName' => 'PrimaryMap',
+				'MapId' => 'map', 
+				'LeafletProps' => array(
+					'center' => [38.62727, -90.19789],
+					'zoom' => 12,
+					'scrollWheelZoom' => false
+				)
+			);
+			$PrimaryMap = new LeafletPhp($PrimaryMapProps);
+			$PrimaryMap->PrintMapJs();
+			$PrimaryMap->PrintBasemapTiles();
+			$PrimaryMap->AddMarker("[38.62727, -90.19789]", "Popup text example");	// TODO: Find how to do coordinates better? At somepoint
+			
+			// GeoJSON stuff:
+			if (!is_null($GeoJsonString)) {
+				$PrimaryMap->AddGeoJson($GeoJsonString);
+			}
 		?>
-
 	</script>
 
 </body>
