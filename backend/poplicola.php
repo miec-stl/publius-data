@@ -18,7 +18,7 @@ function InsertContributions($ContributionRows) {
 	$ParamsForBinding = array();
 	$ParamTypesString = '';
 	foreach ($ContributionRows as $Index => $ThisContribution) {
-		Contribution::ValidateContributionRow($ThisContribution);		
+		Contribution::ValidateContributionRow($ThisContribution);
 
 		// Add parameters for bind_param
 		$ParamTypesString .= "issisiis";
@@ -31,10 +31,10 @@ function InsertContributions($ContributionRows) {
 		$ParamsForBinding[] = $ThisContribution['Amount'];
 		$ParamsForBinding[] = json_encode($ThisContribution['ContributionData']);
 		$Query .= '(?,?,?,?,?,?,?,?)';
-		if ($Index+1 == count($ContributionRows)) { 
-			$Query .= ";"; 
-		} else { 
-			$Query .= ","; 
+		if ($Index+1 == count($ContributionRows)) {
+			$Query .= ";";
+		} else {
+			$Query .= ",";
 		}
 	}
 
@@ -63,19 +63,60 @@ function GetContribution($ContributionId) {
 	return $result->fetch_assoc();
 }
 
-function GetCandidateContributionsPerZip($MecId) {
+function GetDonationsPerZip($MecId, $StartDate, $EndDate) {
 	global $dbConnection;
-	$stmt = $dbConnection->prepare('SELECT ZipCode, SUM(Amount) AS TotalFromZip FROM contribution WHERE MecId = ? GROUP BY ZipCode ORDER BY TotalFromZip DESC');
-	$stmt->bind_param('s', $MecId);
+	$stmt = $dbConnection->prepare('SELECT ZipCode, SUM(Amount) AS TotalFromZip FROM contribution WHERE MecId = ? AND ContributionDate > ? AND ContributionDate < ? GROUP BY ZipCode ORDER BY TotalFromZip DESC');
+	$stmt->bind_param('sss', $MecId, $StartDate, $EndDate);
 	$stmt->execute();
 	$result = $stmt->get_result();
-	
 	$ReturnArray = array();
 	while ($row = $result->fetch_assoc()) {
-
 		$ReturnArray[] = $row;
 	}
 	return $ReturnArray;
+}
+
+class Election {
+	function __construct() {
+
+	}
+
+	public static function GetElection($ElectionId) {
+		global $dbConnection;
+		$stmt = $dbConnection->prepare('SELECT * FROM election WHERE ElectionId = ?');
+		$stmt->bind_param('i', $ElectionId);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		return $result->fetch_assoc();
+	}
+}
+
+class Candidate {
+	// Returns keyed on candidate Id
+	static function GetCandidates($CandidateIdArray) {
+		if (!is_array($CandidateIdArray) || empty($CandidateIdArray)) { return array(); }
+		global $dbConnection;
+		$Placeholders = implode(",", array_map(function(){ return "?"; }, $CandidateIdArray));
+		$ParamTypesString = implode("", array_map(function(){ return "i"; }, $CandidateIdArray));
+		$stmt =  $dbConnection->stmt_init();
+		$Query = 'SELECT * FROM candidate WHERE CandidateId IN ('.$Placeholders.')';
+		if ($stmt->prepare($Query)) {
+			$ref = new ReflectionClass('mysqli_stmt');
+			$method = $ref->getMethod("bind_param");
+			$ParamsForBinding = $CandidateIdArray;
+			array_unshift($ParamsForBinding, $ParamTypesString);
+			@$method->invokeArgs($stmt, $ParamsForBinding);
+			$stmt->execute();
+			$result = $stmt->get_result();
+			$ReturnArray = array();
+			while ($row = $result->fetch_assoc()) {
+				$ReturnArray[$row['CandidateId']] = $row;
+			}
+			return $ReturnArray;
+		} else {
+			throw new Exception("(#0uh020)");
+		}
+	}
 }
 
 ?>

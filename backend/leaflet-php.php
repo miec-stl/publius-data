@@ -5,10 +5,38 @@ class LeafletPhp {
 	private $MapId;
 	private $LeafletProps;
 
+	private $CurrentElection;
+	private $ElectionCandidates;
+	private $CurrentCandidate;
+
+	private $SelectedStartDate;
+	private $SelectedEndDate;
+
 	function __construct($Props) {
 		$this->MapName = $Props['MapName'];
 		$this->MapId = $Props['MapId'];
 		$this->LeafletProps = $Props['LeafletProps'];
+
+		$this->SetElection(1);
+		$this->SelectedStartDate = '2017-01-01';
+		$this->SelectedEndDate = '2021-03-10';
+	}
+	
+	function SetElection($SelectedElectionId) {
+		$CurrentElection = Election::GetElection($SelectedElectionId);
+		$CurrentElectionData = json_decode($CurrentElection['Data']);
+		$this->ElectionCandidates = Candidate::GetCandidates($CurrentElectionData->Candidates);
+		$this->SelectedEndDate = $CurrentElection['Date'];
+		$this->SelectedStartDate = date('Y-m-d', strtotime("-4 years", strtotime($CurrentElection['Date'])));
+	}
+
+	function SetCandidate($SelectedCandidateId) {
+		if (!is_null($SelectedCandidateId) && isset($this->ElectionCandidates[$SelectedCandidateId])) {
+			$this->CurrentCandidate = $this->ElectionCandidates[$SelectedCandidateId];
+			$this->DonationsPerZip = GetDonationsPerZip($this->CurrentCandidate['MecId'], $this->SelectedStartDate, $this->SelectedEndDate);
+		} else {
+			$this->CurrentCandidate = null;
+		}
 	}
 
 	/* Set up the initial map center and zoom level */
@@ -70,11 +98,11 @@ class LeafletPhp {
 	/** 
 	 * Input
 	 */
-	public static function PrintDashboardInput($SelectedElection, $SelectedCandidate) {
+	public function PrintDashboardInput() {
 		// TODO: get from the db
 		$Candidates = array(
-			array('MecId' => 'dunno', 'Name' => 'Tishaura Jones'),
-			array('MecId' => 'not sure', 'Name' => 'Dana Kelly'),
+			array('MecId' => 'C201499', 'Name' => 'Tishaura Jones'),
+			array('MecId' => 'C201415', 'Name' => 'Dana Kelly'),
 			array('MecId' => 'C000450', 'Name' => 'Lyda Krewson'),
 			array('MecId' => 'C201099', 'Name' => 'Cara Spencer'),
 		);
@@ -90,38 +118,54 @@ class LeafletPhp {
 						</optgroup>
 					</select>
 				</div>
-				".self::PrintCandidateSelect($Candidates, $SelectedCandidate)."
+				".$this->CandidateSelect()."
+				".$this->DateSelect()."
 				<button>go</button>
 			</form>
-			".self::PrintContributionStats($SelectedCandidate)."
+			".$this->PrintDonationStats()."
 		</div>";
 		echo $DashboardHtml;
 	}
 
-	public static function PrintCandidateSelect($Candidates, $SelectedCandidate) {
-		$CandidateOptions = array_map(function($Candidate) use ($SelectedCandidate) {
-			return "<option value='$Candidate[MecId]' ".($SelectedCandidate == $Candidate['MecId'] ? " selected='selected'" : "").">
-				$Candidate[Name]
+	public function CandidateSelect() {
+		$CandidateOptions = array_map(function($Candidate) {
+			$CandidateData = json_decode($Candidate['Data']);
+			return "<option value='$Candidate[CandidateId]' ".($this->CurrentCandidate && $this->CurrentCandidate['CandidateId'] == $Candidate['CandidateId'] ? " selected='selected'" : "").">
+				$CandidateData->CandidateName
 			</option>";
-		}, $Candidates);
+		}, $this->ElectionCandidates);
 
 		return "<div>
 			<label for='CandidateInput'>Candidate</label>
-			<select id='CandidateInput' name='Candidate'>
-				<option value='' ".($SelectedCandidate == null ? "selected='selected'" : "").">Select a candidate</option>
+			<select id='CandidateInput' name='CandidateId'>
+				<option value='' ".($this->CurrentCandidate == null ? "selected='selected'" : "").">Select a candidate</option>
 				".implode("",$CandidateOptions)."
 			</select>
 		</div>";
 	}
 
-	public static function PrintContributionStats($MecId) {
-		$CandidateContributionsPerZip = GetCandidateContributionsPerZip($MecId);
-		$TableReturn = "<table><tr><th>Zip</th><th>Total $ from Zip</th></tr>";
-		foreach ($CandidateContributionsPerZip as $Index => $Row) {
-			$TableReturn .= "<tr><td>$Row[ZipCode]</td><td>$Row[TotalFromZip]</td></tr>\n";
-		}
-		$TableReturn .= "</table>";
-		return $TableReturn;
+	public function DateSelect() {
+		return "<div>
+			<label for='StartDate'>StartDate</label>
+			<input type='date' id='StartDate' name='StartDate' value='$this->SelectedStartDate' />
+			<label for='EndDate'>EndDate</label>
+			<input type='date' id='EndDate' name='EndDate' value='$this->SelectedEndDate' />
+		</div>";
+	}
+
+	public function PrintDonationStats() {
+		if ($this->CurrentCandidate == null) { return ""; }
+		return "<div id='DonationStats'>
+				<div class='DonationStatsHeader'><span>ZIP Code</span><span>Total $</span></div>
+				<div class='DonationStatsScrollable'>
+					<div><span>
+							".implode("</span></div><div><span>", array_map(function ($Row) {
+								$ParsedCurrency = number_format($Row['TotalFromZip']);
+								return "$Row[ZipCode]</span><span>\$$ParsedCurrency";
+							}, $this->DonationsPerZip))."
+					</span></div>
+				</div>
+		</div>";
 	}
 
 	public static function PrintZipCodeInput($SelectedZipCode) {
