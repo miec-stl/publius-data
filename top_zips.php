@@ -5,9 +5,6 @@ include('backend/init.php');
 // Handle requests
 $SelectedElection = isset($_REQUEST['Election']) ? $_REQUEST['Election'] : null;
 $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'] : null;
-
-$StlZipCodes = GetStlZipCodes();
-
 ?>
 
 <head>
@@ -110,7 +107,9 @@ $StlZipCodes = GetStlZipCodes();
 	<!-- Leaflet Javascript -->
 	<script>
 		<?php 
-			LeafletPhp::PrintBasicZipMap($StlZipCodes); 
+			$DonationsByZipMap->PrintMapJs();
+			$DonationsByZipMap->PrintBasemapTiles();
+			$DonationsByZipMap->PrintDonationsByZipMap();
 		?>
 	</script>
 

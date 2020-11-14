@@ -49,7 +49,18 @@ function GetGeoJson($GeoType, $GeoName) {
 	$stmt->execute();
 	$result = $stmt->get_result();
 	$row = $result->fetch_object();
-	return $row->GeoJson;
+	$PolygonJson = OnlyPolygonJson($row->GeoJson);
+	return $PolygonJson;
+}
+
+function OnlyPolygonJson($GeoJsonObject) {
+	$GeoJson = json_decode($GeoJsonObject);
+	foreach ($GeoJson->features as $ThisFeature) {
+		if ($ThisFeature->geometry->type == 'Polygon' || $ThisFeature->geometry->type == 'MultiPolygon') {
+			return json_encode($ThisFeature);
+		}
+	}
+
 }
 
 ?>

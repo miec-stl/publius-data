@@ -95,18 +95,44 @@ class LeafletPhp {
 		}
 	}
 
+	public function PrintDonationsByZipMap() {
+		$StlZipCodes = GetStlZipCodes();
+		foreach ($this->DonationsPerZip as $ThisZip) {
+			if (!in_array($ThisZip['ZipCode'], $StlZipCodes)) { continue; }
+
+			$DonationsHere = $ThisZip['TotalFromZip'];
+			if ($DonationsHere > 50000) {
+				$FillColor = '#e00016';
+			} else if ($DonationsHere > 25000) {
+				$FillColor = '#ff263C';
+			} else if ($DonationsHere > 10000) {
+				$FillColor = '#ff5C6C';
+			} else if ($DonationsHere > 5000) {
+				$FillColor = '#ff919c';
+			} else if ($DonationsHere > 1000) {
+				$FillColor = '#ffbac1';
+			} else {
+				$FillColor = '#ffe8ea';
+			}
+
+			$GeoJsonProps = array(
+				'style' => array(
+					'fillColor' => $FillColor,
+					'fillOpacity' => 0.8,
+					'weight' => 3,
+					'color' => 'white'
+				)
+			);
+			
+			$this->AddGeoJson(GetGeoJson("ZIP", $ThisZip['ZipCode']), $GeoJsonProps);
+		
+		}
+	}
+
 	/** 
 	 * Input
 	 */
 	public function PrintDashboardInput() {
-		// TODO: get from the db
-		$Candidates = array(
-			array('MecId' => 'C201499', 'Name' => 'Tishaura Jones'),
-			array('MecId' => 'C201415', 'Name' => 'Dana Kelly'),
-			array('MecId' => 'C000450', 'Name' => 'Lyda Krewson'),
-			array('MecId' => 'C201099', 'Name' => 'Cara Spencer'),
-		);
-
 		$DashboardHtml = "<div id='dashboard'>
 			<div>Publius Dashboard</div>
 			<form>
@@ -148,6 +174,7 @@ class LeafletPhp {
 		return "<div>
 			<label for='StartDate'>StartDate</label>
 			<input type='date' id='StartDate' name='StartDate' value='$this->SelectedStartDate' />
+			<br/>
 			<label for='EndDate'>EndDate</label>
 			<input type='date' id='EndDate' name='EndDate' value='$this->SelectedEndDate' />
 		</div>";
