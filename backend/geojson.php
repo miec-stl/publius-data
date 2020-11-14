@@ -33,7 +33,6 @@ function InsertGeoJson($GeoRows) {
 		// Suppressing error here because it yells at me for this, I hope this causes no problems lol
 		@$method->invokeArgs($stmt, $ParamsForBinding);
 		$stmt->execute();
-		print_r($stmt->error_list);
 		return count($GeoRows);
 	} else {
 		throw new Exception("Problem with insert: ".$stmt->error);

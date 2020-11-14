@@ -1,11 +1,13 @@
 <?php
 
 include('backend/init.php');
-
-$GeoJson = GetGeoJson("ZIP", "63118");
+include_once('backend/stl.php');
 
 echo "<pre>";
-print_r($GeoJson);
+
+$StlZipPops = GetStlZipCodes();
+print_r($StlZipPops);
+
 echo "</pre>";
 
 ?>

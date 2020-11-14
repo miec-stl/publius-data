@@ -1,17 +1,17 @@
 <?php
 
 include('backend/init.php');
-if (isset($_REQUEST['ZipCode']) || strlen($_REQUEST['ZipCode']) == 5) {
-	$ZipCode = $_REQUEST['ZipCode'];
+if (isset($_REQUEST['ZipCode']) && strlen($_REQUEST['ZipCode']) == 5) {
+	$SelectedZipCode = $_REQUEST['ZipCode'];
 } else {
-	$ZipCode = '63118';
+	$SelectedZipCode = '63118';
 }
 
-try {
-	$GeoJsonString = GetGeoJson("ZIP", $ZipCode);
-} catch (Exception $e) {
-	$GeoJsonString = null;
-}
+// try {
+// 	$GeoJsonString = GetGeoJson("ZIP", $SelectedZipCode);
+// } catch (Exception $e) {
+// 	$GeoJsonString = null;
+// }
 
 ?>
 
@@ -56,7 +56,7 @@ try {
 		publius
 		<form>
 			<label for='ZipCodeInput'>Zip Code</label>
-			<input type='text' id='ZipCodeInput' name='ZipCode' value=<?php echo $ZipCode; ?> />
+			<input type='text' id='ZipCodeInput' name='ZipCode' value=<?php echo $SelectedZipCode; ?> />
 			<button>go</button>
 		</form>
 	</div>
@@ -79,12 +79,24 @@ try {
 			$PrimaryMap = new LeafletPhp($PrimaryMapProps);
 			$PrimaryMap->PrintMapJs();
 			$PrimaryMap->PrintBasemapTiles();
-			$PrimaryMap->AddMarker("[38.62727, -90.19789]", "Popup text example");	// TODO: Find how to do coordinates better? At somepoint
+			$PrimaryMap->AddMarker("[38.62727, -90.19789]", "Popup text example");	// TODO: Find how to do coordinates better? At some point
 			
 			// GeoJSON stuff:
-			if (!is_null($GeoJsonString)) {
-				$PrimaryMap->AddGeoJson($GeoJsonString);
+			
+			$StlZipCodes = GetStlZipCodes();
+
+			//TODO: Bulk version of this:
+			foreach ($StlZipCodes as $ThisZip) {
+				$GeoJsonProps = array(
+					'style' => array(
+						'fillColor' => ($ThisZip == $SelectedZipCode ? 'green' : 'blue'),
+						'weight' => 2,
+						'color' => 'white'
+					)
+				);				
+				$PrimaryMap->AddGeoJson(GetGeoJson("ZIP", $ThisZip), $GeoJsonProps);
 			}
+
 		?>
 	</script>
 
