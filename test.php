@@ -10,7 +10,7 @@ $Rows = array(
 		"ReportId" => 1,
 		"ZipCode" => "63118",
 		"Amount" => 666,
-		"ContributionData" => array()aoeu
+		"ContributionData" => array()
 	),
 	array(
 		"ContributorId" => null,
