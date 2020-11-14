@@ -2,27 +2,10 @@
 
 include('backend/init.php');
 
-$Rows = array(
-	array(
-		"ContributorId" => null,
-		"ContributionDate" => "2020-11-13",
-		"CandidateId" => 1,
-		"ReportId" => 1,
-		"ZipCode" => "63118",
-		"Amount" => 666,
-		"ContributionData" => array()
-	),
-	array(
-		"ContributorId" => null,
-		"ContributionDate" => "2020-11-13",
-		"CandidateId" => 1,
-		"ReportId" => 1,
-		"ZipCode" => "63119",
-		"Amount" => 123,
-		"ContributionData" => array()
-	)
-);
+$GeoJson = GetGeoJson("ZIP", "63118");
 
-InsertContributions($Rows);
+echo "<pre>";
+print_r($GeoJson);
+echo "</pre>";
 
 ?>

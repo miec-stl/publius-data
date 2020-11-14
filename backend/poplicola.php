@@ -60,7 +60,7 @@ function GetContribution($ContributionId) {
 	$stmt->bind_param('i', $ContributionId);
 	$stmt->execute();
 	$result = $stmt->get_result();
-	return $result;
+	return $result->fetch_assoc();
 }
 
 ?>
