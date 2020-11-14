@@ -67,35 +67,9 @@ if (isset($_REQUEST['ZipCode']) && strlen($_REQUEST['ZipCode']) == 5) {
 	<!-- Leaflet Javascript -->
 	<script>
 		<?php 
-			$PrimaryMapProps = array(
-				'MapName' => 'PrimaryMap',
-				'MapId' => 'map', 
-				'LeafletProps' => array(
-					'center' => [38.62727, -90.19789],
-					'zoom' => 12,
-					'scrollWheelZoom' => false
-				)
-			);
-			$PrimaryMap = new LeafletPhp($PrimaryMapProps);
-			$PrimaryMap->PrintMapJs();
-			$PrimaryMap->PrintBasemapTiles();
-			$PrimaryMap->AddMarker("[38.62727, -90.19789]", "Popup text example");	// TODO: Find how to do coordinates better? At some point
-			
-			// GeoJSON stuff:
 			
 			$StlZipCodes = GetStlZipCodes();
-
-			//TODO: Bulk version of this:
-			foreach ($StlZipCodes as $ThisZip) {
-				$GeoJsonProps = array(
-					'style' => array(
-						'fillColor' => ($ThisZip == $SelectedZipCode ? 'green' : 'blue'),
-						'weight' => 2,
-						'color' => 'white'
-					)
-				);				
-				$PrimaryMap->AddGeoJson(GetGeoJson("ZIP", $ThisZip), $GeoJsonProps);
-			}
+			LeafletPhp::BasicZipMap($StlZipCodes, $SelectedZipCode);
 
 		?>
 	</script>

@@ -33,4 +33,37 @@ class LeafletPhp {
 		if (!is_array($GeoJsonProps)) { throw new Exception("Invalid props for AddGeoJson"); }
 		echo "L.geoJson($GeoJsonString, ".json_encode($GeoJsonProps).").addTo($this->MapName);\n";
 	}
+
+	/**
+	 * Full maps
+	 */
+
+	public static function BasicZipMap($ZipCodes, $SelectedZipCode) {
+		$PrimaryMapProps = array(
+			'MapName' => 'ZipMap',
+			'MapId' => 'map', 
+			'LeafletProps' => array(
+				'center' => [38.62727, -90.24789],
+				'zoom' => 12,
+				'scrollWheelZoom' => false
+			)
+		);
+
+		$PrimaryMap = new LeafletPhp($PrimaryMapProps);
+		$PrimaryMap->PrintMapJs();
+		$PrimaryMap->PrintBasemapTiles();
+		$PrimaryMap->AddMarker("[38.62727, -90.19789]", "Popup text example");	// TODO: Find how to do coordinates better? At some point
+
+		//TODO: Bulk version of this:
+		foreach ($ZipCodes as $ThisZip) {
+			$GeoJsonProps = array(
+				'style' => array(
+					'fillColor' => ($ThisZip == $SelectedZipCode ? 'green' : 'blue'),
+					'weight' => 2,
+					'color' => 'white'
+				)
+			);				
+			$PrimaryMap->AddGeoJson(GetGeoJson("ZIP", $ThisZip), $GeoJsonProps);
+		}
+	}
 }
