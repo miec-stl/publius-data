@@ -38,7 +38,7 @@ class LeafletPhp {
 	 * Full maps
 	 */
 
-	public static function BasicZipMap($ZipCodes, $SelectedZipCode) {
+	public static function PrintBasicZipMap($ZipCodes, $SelectedZipCode=null) {
 		$PrimaryMapProps = array(
 			'MapName' => 'ZipMap',
 			'MapId' => 'map', 
@@ -65,5 +65,73 @@ class LeafletPhp {
 			);				
 			$PrimaryMap->AddGeoJson(GetGeoJson("ZIP", $ThisZip), $GeoJsonProps);
 		}
+	}
+
+	/** 
+	 * Input
+	 */
+	public static function PrintDashboardInput($SelectedElection, $SelectedCandidate) {
+		// TODO: get from the db
+		$Candidates = array(
+			array('MecId' => 'dunno', 'Name' => 'Tishaura Jones'),
+			array('MecId' => 'not sure', 'Name' => 'Dana Kelly'),
+			array('MecId' => 'C000450', 'Name' => 'Lyda Krewson'),
+			array('MecId' => 'C201099', 'Name' => 'Cara Spencer'),
+		);
+
+		$DashboardHtml = "<div id='dashboard'>
+			<div>Publius Dashboard</div>
+			<form>
+				<div>
+					<label for='ElectionInput'>Election</label>
+					<select id='ElectionInput' name='Election'>
+						<optgroup label='2021 Municipal Election'>
+							<option value='1'>2021 Mayoral Race</option>
+						</optgroup>
+					</select>
+				</div>
+				".self::PrintCandidateSelect($Candidates, $SelectedCandidate)."
+				<button>go</button>
+			</form>
+			".self::PrintContributionStats($SelectedCandidate)."
+		</div>";
+		echo $DashboardHtml;
+	}
+
+	public static function PrintCandidateSelect($Candidates, $SelectedCandidate) {
+		$CandidateOptions = array_map(function($Candidate) use ($SelectedCandidate) {
+			return "<option value='$Candidate[MecId]' ".($SelectedCandidate == $Candidate['MecId'] ? " selected='selected'" : "").">
+				$Candidate[Name]
+			</option>";
+		}, $Candidates);
+
+		return "<div>
+			<label for='CandidateInput'>Candidate</label>
+			<select id='CandidateInput' name='Candidate'>
+				<option value='' ".($SelectedCandidate == null ? "selected='selected'" : "").">Select a candidate</option>
+				".implode("",$CandidateOptions)."
+			</select>
+		</div>";
+	}
+
+	public static function PrintContributionStats($MecId) {
+		$CandidateContributionsPerZip = GetCandidateContributionsPerZip($MecId);
+		$TableReturn = "<table><tr><th>Zip</th><th>Total $ from Zip</th></tr>";
+		foreach ($CandidateContributionsPerZip as $Index => $Row) {
+			$TableReturn .= "<tr><td>$Row[ZipCode]</td><td>$Row[TotalFromZip]</td></tr>\n";
+		}
+		$TableReturn .= "</table>";
+		return $TableReturn;
+	}
+
+	public static function PrintZipCodeInput($SelectedZipCode) {
+		echo "<div id='map-title'>
+			publius
+			<form>
+				<label for='ZipCodeInput'>Zip Code</label>
+				<input type='text' id='ZipCodeInput' name='ZipCode' value='$SelectedZipCode' />
+				<button>go</button>
+			</form>
+		</div>";
 	}
 }

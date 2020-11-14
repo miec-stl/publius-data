@@ -2,7 +2,7 @@
 
 include('backend/init.php');
 
-$Path = "reports/lyda.csv";
+$Path = "reports/cara.csv";
 
 $ContributionRowsToAdd = array();
 if (($handle = fopen($Path, "r")) !== false) {

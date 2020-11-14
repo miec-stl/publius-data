@@ -1,17 +1,17 @@
 <?php
 
 include('backend/init.php');
-if (isset($_REQUEST['ZipCode']) && strlen($_REQUEST['ZipCode']) == 5) {
-	$SelectedZipCode = $_REQUEST['ZipCode'];
-} else {
-	$SelectedZipCode = '63118';
-}
+
+$SelectedElection = isset($_REQUEST['Election']) ? $_REQUEST['Election'] : null;
+$SelectedCandidate = isset($_REQUEST['Candidate']) ? $_REQUEST['Candidate'] : null;
 
 // try {
 // 	$GeoJsonString = GetGeoJson("ZIP", $SelectedZipCode);
 // } catch (Exception $e) {
 // 	$GeoJsonString = null;
 // }
+
+$StlZipCodes = GetStlZipCodes();
 
 ?>
 
@@ -48,30 +48,30 @@ if (isset($_REQUEST['ZipCode']) && strlen($_REQUEST['ZipCode']) == 5) {
 		font-size: 24px;
 		z-index: 800;
 	}
+	#dashboard {
+		position: relative;
+		height: 100vh;
+		width: 20%;
+		min-width: 200px;
+		background-color: white;
+		border: 2px solid rgba(0,0,0,0.2);
+		padding: 82px 8px 20px;
+		z-index: 400;
+		line-height: 1.6em;
+	}
 </style>
 
 <body>
-	<!-- Map form (to become sidebar) -->
-	<div id='map-title'>
-		publius
-		<form>
-			<label for='ZipCodeInput'>Zip Code</label>
-			<input type='text' id='ZipCodeInput' name='ZipCode' value=<?php echo $SelectedZipCode; ?> />
-			<button>go</button>
-		</form>
-	</div>
-
+	
 	<!-- Div placeholder for leaflet map -->
 	<div id='map'></div>
+	
+	<!-- Dashboard -->
+	<?php LeafletPhp::PrintDashboardInput($SelectedElection, $SelectedCandidate); ?>
 
 	<!-- Leaflet Javascript -->
 	<script>
-		<?php 
-			
-			$StlZipCodes = GetStlZipCodes();
-			LeafletPhp::BasicZipMap($StlZipCodes, $SelectedZipCode);
-
-		?>
+		<?php LeafletPhp::PrintBasicZipMap($StlZipCodes); ?>
 	</script>
 
 </body>

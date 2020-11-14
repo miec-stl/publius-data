@@ -63,4 +63,19 @@ function GetContribution($ContributionId) {
 	return $result->fetch_assoc();
 }
 
+function GetCandidateContributionsPerZip($MecId) {
+	global $dbConnection;
+	$stmt = $dbConnection->prepare('SELECT ZipCode, SUM(Amount) AS TotalFromZip FROM contribution WHERE MecId = ? GROUP BY ZipCode ORDER BY TotalFromZip DESC');
+	$stmt->bind_param('s', $MecId);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	
+	$ReturnArray = array();
+	while ($row = $result->fetch_assoc()) {
+
+		$ReturnArray[] = $row;
+	}
+	return $ReturnArray;
+}
+
 ?>
