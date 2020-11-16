@@ -18,6 +18,7 @@ $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'
 </head>
 
 <!-- Position the map and title with Cascading Style Sheet (.css) -->
+<!-- TODO: Pull CSS into own file -->
 <style>
 	body { margin:0; padding:0; }
 	#map {
@@ -42,14 +43,25 @@ $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'
 	}
 	#dashboard {
 		position: relative;
-		height: 100vh;
 		width: 20%;
+		height: 100%;
 		min-width: 200px;
 		background-color: white;
 		border: 2px solid rgba(0,0,0,0.2);
-		padding: 82px 8px 20px;
 		z-index: 400;
 		line-height: 1.6em;
+	}
+
+	.Header {
+		color: white;
+		background-color: #e00016;
+		text-align: center;
+		padding: 3px;
+		font-size: 1.3em;
+	}
+
+	#dashboard form {
+		padding: 9px;
 	}
 
 	#DonationStats {
@@ -87,9 +99,10 @@ $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'
 			'MapName' => 'DonationsByZipMap',
 			'MapId' => $ThisMapId,			
 			'LeafletProps' => array(
-				'center' => [38.62727, -90.24789],
+				'center' => [38.62727, -90.34789],
 				'zoom' => 12,
-				'scrollWheelZoom' => true
+				'zoomControl' => false,		// Remove this to get zoom back
+				'scrollWheelZoom' => false
 			) 
 		);
 		$DonationsByZipMap = new LeafletPhp($DonationsByZipProps);
@@ -103,6 +116,8 @@ $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'
 
 	<!-- Dashboard -->
 	<?php $DonationsByZipMap->PrintDashboardInput(); ?>
+
+	<script src='frontend/leaflet-helper.js'></script>
 
 	<!-- Leaflet Javascript -->
 	<script>

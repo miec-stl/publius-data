@@ -57,9 +57,11 @@ class LeafletPhp {
 	}
 
 	/* Add a GeoJSON geography to the map */
-	public function AddGeoJson($GeoJsonString, $GeoJsonProps=array()) {
-		if (!is_array($GeoJsonProps)) { throw new Exception("Invalid props for AddGeoJson"); }
-		echo "L.geoJson($GeoJsonString, ".json_encode($GeoJsonProps).").addTo($this->MapName);\n";
+	public function AddGeoJson($GeoJsonString, $GeoJsonProps=array(), $BindPopup=null) {
+		if (!is_array($GeoJsonProps)) { throw new Exception("Invalid props for AddGeoJson"); } 
+		echo "L.geoJson($GeoJsonString, ".json_encode($GeoJsonProps).").addTo($this->MapName)";
+		if (!is_null($BindPopup)) { echo ".bindPopup($BindPopup)"; }
+		echo ";\n";
 	}
 
 	/**
@@ -73,7 +75,9 @@ class LeafletPhp {
 			'LeafletProps' => array(
 				'center' => [38.62727, -90.24789],
 				'zoom' => 12,
-				'scrollWheelZoom' => false
+				'scrollWheelZoom' => true,
+				'zoomControl' => false,
+				'preferCanvas' => true
 			)
 		);
 
@@ -101,6 +105,8 @@ class LeafletPhp {
 			if (!in_array($ThisZip['ZipCode'], $StlZipCodes)) { continue; }
 
 			$DonationsHere = $ThisZip['TotalFromZip'];
+
+			// TODO: Pull into a function
 			if ($DonationsHere > 50000) {
 				$FillColor = '#e00016';
 			} else if ($DonationsHere > 25000) {
@@ -115,17 +121,23 @@ class LeafletPhp {
 				$FillColor = '#ffe8ea';
 			}
 
+			$GeoJson = json_decode(GetGeoJson("ZIP", $ThisZip['ZipCode']));
+
+			// TODO: Figure out better handling for props
 			$GeoJsonProps = array(
 				'style' => array(
 					'fillColor' => $FillColor,
 					'fillOpacity' => 0.8,
 					'weight' => 3,
 					'color' => 'white'
-				)
+				), 
 			);
 			
-			$this->AddGeoJson(GetGeoJson("ZIP", $ThisZip['ZipCode']), $GeoJsonProps);
-		
+			$this->AddGeoJson(
+				json_encode($GeoJson), 
+				$GeoJsonProps, 
+				"\"".StripLinebreaks(PrintZipDonationPopup($ThisZip['ZipCode'], "$".number_format($DonationsHere)))."\""
+			);
 		}
 	}
 
@@ -134,7 +146,7 @@ class LeafletPhp {
 	 */
 	public function PrintDashboardInput() {
 		$DashboardHtml = "<div id='dashboard'>
-			<div>Publius Dashboard</div>
+			<div class='Header'>Donor Project - Dashboard</div>
 			<form>
 				<div>
 					<label for='ElectionInput'>Election</label>

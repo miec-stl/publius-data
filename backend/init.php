@@ -14,5 +14,6 @@
 	include_once('geojson.php');
 	include_once('leaflet-php.php');
 	include_once('stl.php');
-
+	include_once('html_printing.php');
+	
 ?>
