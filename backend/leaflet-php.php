@@ -48,7 +48,7 @@ class LeafletPhp {
 
 	/* Set up the initial map center and zoom level */
 	public function PrintMapJs() {
-		echo "var $this->MapName = L.map('$this->MapId', ".json_encode($this->LeafletProps).");\n";
+		echo "var $this->MapName = L.map('$this->MapId', ".json_encode($this->LeafletProps).");\n"; 
 	}
 
 	/* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
@@ -132,6 +132,15 @@ class LeafletPhp {
 			$this->AddGeoJson(
 				json_encode($ZipGeoJson), 
 				$Style
+			);
+		}
+	}
+
+	public function PrintWardMap() {
+		$WardsGeoJson = json_decode(GetGeoJson("Ward", "All"));
+		foreach ($WardsGeoJson->features as $ThisWardGeoJson) {
+			$this->AddGeoJson(
+				json_encode($ThisWardGeoJson),
 			);
 		}
 	}

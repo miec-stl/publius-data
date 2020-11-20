@@ -40,7 +40,7 @@ function InsertGeoJson($GeoRows) {
 }
 
 function GetGeoJson($GeoType, $GeoName) {
-	$AllowedGeoTypes = array("ZIP");
+	$AllowedGeoTypes = array("ZIP", "Ward");
 	if (!in_array($GeoType, $AllowedGeoTypes)) { throw new Exception("Only GeoType now are: ".implode(", ", $AllowedGeoTypes)); }
 	
 	global $dbConnection;
@@ -55,11 +55,12 @@ function GetGeoJson($GeoType, $GeoName) {
 
 function OnlyPolygonJson($GeoJsonObject) {
 	$GeoJson = json_decode($GeoJsonObject);
-	foreach ($GeoJson->features as $ThisFeature) {
-		if ($ThisFeature->geometry->type == 'Polygon' || $ThisFeature->geometry->type == 'MultiPolygon') {
-			return json_encode($ThisFeature);
+	foreach ($GeoJson->features as $Index => $ThisFeature) {
+		if (!$ThisFeature->geometry->type == 'Polygon' && !$ThisFeature->geometry->type == 'MultiPolygon') {
+			unset($GeoJson->features[$Index]);
 		}
 	}
+	return json_encode($GeoJson);
 
 }
 

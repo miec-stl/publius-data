@@ -6,7 +6,6 @@ include('../backend/init.php');
 $TestLeafletPhp = new LeafletPhp();
 
 $ElectionId = 1;
-$StlZipCodes = GetStlZipCodes();
 
 ?>
 
@@ -42,8 +41,12 @@ $StlZipCodes = GetStlZipCodes();
 	$TestLeafletPhp->PrintMapJs();
 	$TestLeafletPhp->PrintBasemapTiles();
 
-	$ZipCodeMapStyle = LeafletPhpProps::GetZipCodeMapProps();
-	$TestLeafletPhp->PrintZipCodeMap($StlZipCodes, $ZipCodeMapStyle);
+	$MapStyle = LeafletPhpProps::GetZipCodeMapProps();
+
+	// $StlZipCodes = GetStlZipCodes();
+	// $TestLeafletPhp->PrintZipCodeMap($StlZipCodes, $MapStyle);
+
+	$TestLeafletPhp->PrintWardMap();
 		
 	?>
 </script>
