@@ -90,25 +90,7 @@ $SelectedCandidateId = isset($_REQUEST['CandidateId']) ? $_REQUEST['CandidateId'
 
 </style>
 
-<body>
-
-	<?php
-		// Create contributions Zip Code map
-		$ThisMapId = 'map';
-		$DonationsByZipProps = array(
-			'MapName' => 'DonationsByZipMap',
-			'MapId' => $ThisMapId,			
-			'LeafletProps' => array(
-				'center' => [38.62727, -90.34789],
-				'zoom' => 12,
-				'zoomControl' => false,		// Remove this to get zoom back
-				'scrollWheelZoom' => false
-			) 
-		);
-		$DonationsByZipMap = new LeafletPhp($DonationsByZipProps);
-		$DonationsByZipMap->SetElection($SelectedElection);
-		$DonationsByZipMap->SetCandidate($SelectedCandidateId);
-	?>
+  
 
 
 	<!-- Div placeholder for leaflet map -->

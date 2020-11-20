@@ -12,14 +12,21 @@ class LeafletPhp {
 	private $SelectedStartDate;
 	private $SelectedEndDate;
 
-	function __construct($Props) {
-		$this->MapName = $Props['MapName'];
-		$this->MapId = $Props['MapId'];
-		$this->LeafletProps = $Props['LeafletProps'];
+	function __construct($Props = array()) {
+		$this->MapName = isset($Props['MapName']) ? $Props['MapName'] : 'LeafletPhpMap';
+		$this->MapId = isset($Props['MapId']) ? $Props['MapId'] : 'map';
+		$this->LeafletProps = isset($Props['LeafletProps']) && is_array($Props['LeafletProps']) ? $Props['LeafletProps'] : LeafletPhpProps::GetDefaultMapProps();
 
-		$this->SetElection(1);
 		$this->SelectedStartDate = '2017-01-01';
 		$this->SelectedEndDate = '2021-03-10';
+	}
+
+	function GetDefaultLeafletProps() {
+		return array(
+			'center' => [38.62727, -90.34789],
+			'zoom' => 12,
+			'scrollWheelZoom' => false
+		);
 	}
 	
 	function SetElection($SelectedElectionId) {
@@ -99,6 +106,36 @@ class LeafletPhp {
 		}
 	}
 
+	public function PrintGeoJsonMap($Style) {
+		$GeoJsonType = "ZIP";
+		$GeoName = "63118";
+		$GeoJson = json_decode(GetGeoJson($GeoJsonType, $GeoName));
+		$GeoJsonProps = array(
+			'style' => array(
+				'fillColor' => $FillColor,
+				'fillOpacity' => 0.8,
+				'weight' => 3,
+				'color' => 'white'
+			), 
+		);
+		
+		$this->AddGeoJson(
+			json_encode($GeoJson), 
+			$GeoJsonProps, 
+			"\"".StripLinebreaks(PrintZipDonationPopup($ThisZip['ZipCode'], "$".number_format($DonationsHere)))."\""
+		);
+	}
+
+	public function PrintZipCodeMap($ZipCodes, $Style) {
+		foreach ($ZipCodes as $ThisZipCode) {
+			$ZipGeoJson = json_decode(GetGeoJson("ZIP", $ThisZipCode));
+			$this->AddGeoJson(
+				json_encode($ZipGeoJson), 
+				$Style
+			);
+		}
+	}
+
 	public function PrintDonationsByZipMap() {
 		$StlZipCodes = GetStlZipCodes();
 		foreach ($this->DonationsPerZip as $ThisZip) {
@@ -131,6 +168,9 @@ class LeafletPhp {
 					'weight' => 3,
 					'color' => 'white'
 				), 
+				'zoomControl' => array(
+					'position' =>'bottomright'
+				)
 			);
 			
 			$this->AddGeoJson(
@@ -147,22 +187,25 @@ class LeafletPhp {
 	public function PrintDashboardInput() {
 		$DashboardHtml = "<div id='dashboard'>
 			<div class='Header'>Donor Project - Dashboard</div>
-			<form>
-				<div>
-					<label for='ElectionInput'>Election</label>
-					<select id='ElectionInput' name='Election'>
-						<optgroup label='2021 Municipal Election'>
-							<option value='1'>2021 Mayoral Race</option>
-						</optgroup>
-					</select>
-				</div>
-				".$this->CandidateSelect()."
-				".$this->DateSelect()."
-				<button>go</button>
-			</form>
-			".$this->PrintDonationStats()."
+			
 		</div>";
 		echo $DashboardHtml;
+	}
+
+	public function GetElectionFormHtml() {
+		return "<form>
+			<div>
+				<label for='ElectionInput'>Election</label>
+				<select id='ElectionInput' name='Election'>
+					<optgroup label='2021 Municipal Election'>
+						<option value='1'>2021 Mayoral Race</option>
+					</optgroup>
+				</select>
+			</div>
+			".$this->CandidateSelect()."
+			".$this->DateSelect()."
+			<button>go</button>
+		</div>";
 	}
 
 	public function CandidateSelect() {
@@ -216,5 +259,65 @@ class LeafletPhp {
 				<button>go</button>
 			</form>
 		</div>";
+	}
+
+
+
+
+	/**
+	 * HTML printing
+	 */
+	function PrintMapHtml() {
+		echo "<div id='$this->MapId'></div>";
+	}
+
+	/**
+	 * CSS and Styling Stuff
+	 */
+	
+	function PrintDefaultCss() {
+		echo "
+		body { margin:0; padding:0; }
+		#$this->MapId {
+			position: absolute;
+			top:0;
+			bottom:0;
+			right:0;
+			left:0;
+		}
+
+		#map-title {
+			position: relative;
+			margin-top: 10px;
+			margin-left: 50px;
+			float: left;
+			background: white;
+			border: 2px solid rgba(0,0,0,0.2);
+			padding: 6px 8px;
+			font-family: Helvetica;
+			font-weight: bold;
+			font-size: 24px;
+			z-index: 800;
+		}
+
+		#dashboard {
+			position: relative;
+			width: 20%;
+			height: 100%;
+			min-width: 200px;
+			background-color: white;
+			border: 2px solid rgba(0,0,0,0.2);
+			z-index: 400;
+			line-height: 1.6em;
+		}
+		
+		.Header {
+			color: white;
+			background-color: #e00016;
+			text-align: center;
+			padding: 3px;
+			font-size: 1.3em;
+		}
+		";
 	}
 }
