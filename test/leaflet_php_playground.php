@@ -5,8 +5,6 @@ include('../backend/init.php');
 // Create map (flesh out these comments to help new users play around with it)
 $TestLeafletPhp = new LeafletPhp();
 
-$ElectionId = 1;
-
 ?>
 
 <head>
@@ -26,27 +24,23 @@ $ElectionId = 1;
 <body>
 	<?php 
 
-		// Here we call functions that print our HTML we need to display the map and dashboard
-		$TestLeafletPhp->PrintMapHtml(); 
-		//FIXME:
-		$TestLeafletPhp->PrintDashboardInput();
+		$TestLeafletPhp->PrintMapHtml();
+		$TestLeafletPhp->Dashboard->PrintDashboardPaneHtml();
 
 	?>
 </body>
 
 <script>
-	<?php
-
-	// Same deal with Javascript. This needs to happen after the HTML for it to work.
-	$TestLeafletPhp->PrintMapJs();
-	$TestLeafletPhp->PrintBasemapTiles();
+	<?php 
 
 	$MapStyle = LeafletPhpProps::GetZipCodeMapProps();
 
+	$TestLeafletPhp->PrintMapJs();
+	// $TestLeafletPhp->PrintBasemapTiles();
+	$TestLeafletPhp->PrintWardMapJs();
+
 	// $StlZipCodes = GetStlZipCodes();
 	// $TestLeafletPhp->PrintZipCodeMap($StlZipCodes, $MapStyle);
-
-	$TestLeafletPhp->PrintWardMap();
 		
 	?>
 </script>

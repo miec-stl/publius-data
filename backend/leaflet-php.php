@@ -19,14 +19,8 @@ class LeafletPhp {
 
 		$this->SelectedStartDate = '2017-01-01';
 		$this->SelectedEndDate = '2021-03-10';
-	}
 
-	function GetDefaultLeafletProps() {
-		return array(
-			'center' => [38.62727, -90.34789],
-			'zoom' => 12,
-			'scrollWheelZoom' => false
-		);
+		$this->Dashboard = new LeafletPhpDashboard($Props);
 	}
 	
 	function SetElection($SelectedElectionId) {
@@ -44,11 +38,6 @@ class LeafletPhp {
 		} else {
 			$this->CurrentCandidate = null;
 		}
-	}
-
-	/* Set up the initial map center and zoom level */
-	public function PrintMapJs() {
-		echo "var $this->MapName = L.map('$this->MapId', ".json_encode($this->LeafletProps).");\n"; 
 	}
 
 	/* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
@@ -106,26 +95,6 @@ class LeafletPhp {
 		}
 	}
 
-	public function PrintGeoJsonMap($Style) {
-		$GeoJsonType = "ZIP";
-		$GeoName = "63118";
-		$GeoJson = json_decode(GetGeoJson($GeoJsonType, $GeoName));
-		$GeoJsonProps = array(
-			'style' => array(
-				'fillColor' => $FillColor,
-				'fillOpacity' => 0.8,
-				'weight' => 3,
-				'color' => 'white'
-			), 
-		);
-		
-		$this->AddGeoJson(
-			json_encode($GeoJson), 
-			$GeoJsonProps, 
-			"\"".StripLinebreaks(PrintZipDonationPopup($ThisZip['ZipCode'], "$".number_format($DonationsHere)))."\""
-		);
-	}
-
 	public function PrintZipCodeMap($ZipCodes, $Style) {
 		foreach ($ZipCodes as $ThisZipCode) {
 			$ZipGeoJson = json_decode(GetGeoJson("ZIP", $ThisZipCode));
@@ -136,7 +105,7 @@ class LeafletPhp {
 		}
 	}
 
-	public function PrintWardMap() {
+	public function PrintWardMapJs() {
 		$WardsGeoJson = json_decode(GetGeoJson("Ward", "All"));
 		foreach ($WardsGeoJson->features as $ThisWardGeoJson) {
 			$this->AddGeoJson(
@@ -193,13 +162,6 @@ class LeafletPhp {
 	/** 
 	 * Input
 	 */
-	public function PrintDashboardInput() {
-		$DashboardHtml = "<div id='dashboard'>
-			<div class='Header'>Donor Project - Dashboard</div>
-			
-		</div>";
-		echo $DashboardHtml;
-	}
 
 	public function GetElectionFormHtml() {
 		return "<form>
@@ -278,6 +240,23 @@ class LeafletPhp {
 	 */
 	function PrintMapHtml() {
 		echo "<div id='$this->MapId'></div>";
+	}
+		
+	public function PrintDashboardInput() {
+		$DashboardHtml = "<div id='dashboard'>
+			<div class='Header'>Donor Project - Dashboard</div>
+			
+		</div>";
+		echo $DashboardHtml;
+	}
+
+	/**
+	 * Javascript printing
+	 */	
+
+	/* Set up the initial map center and zoom level */
+	public function PrintMapJs() {
+		echo "var $this->MapName = L.map('$this->MapId', ".json_encode($this->LeafletProps).");\n"; 
 	}
 
 	/**
