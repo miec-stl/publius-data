@@ -3,10 +3,10 @@
 class LeafletPhpDashboard {
 
 	public function __construct($Props=array()){		
-		$this->SelectedElectionId = 1;
-		$this->SelectedCandidateId = null;
-		$this->SelectedStartDate = '2017-01-01';
-		$this->SelectedEndDate = '2021-03-10';		
+		$this->SelectedElectionId = isset($Props['ElectionId']) ? $Props['ElectionId'] : 1;
+		$this->SelectedCandidateId = isset($Props['CandidateId']) ? $Props['CandidateId'] : null;
+		$this->SelectedStartDate = isset($Props['StartDate']) ? $Props['StartDate'] : '2020-09-01';
+		$this->SelectedEndDate = isset($Props['EndDate']) ? $Props['EndDate'] : '2017-09-01';		
 	}
 
 	public function PrintDashboardPaneHtml($Contents=null) {

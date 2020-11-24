@@ -66,7 +66,7 @@ function GetContribution($ContributionId) {
 // Returns keyed on zip
 function GetDonationsPerZip($MecId, $StartDate, $EndDate) {
 	global $dbConnection;
-	$stmt = $dbConnection->prepare('SELECT ZipCode, SUM(Amount) AS TotalFromZip FROM contribution WHERE MecId = ? AND ContributionDate > ? AND ContributionDate < ? GROUP BY ZipCode ORDER BY TotalFromZip DESC');
+	$stmt = $dbConnection->prepare('SELECT ZipCode, SUM(Amount) AS TotalFromZip FROM contribution WHERE .MecId = ? AND ContributionDate > ? AND ContributionDate < ? GROUP BY ZipCode ORDER BY TotalFromZip DESC');
 	$stmt->bind_param('sss', $MecId, $StartDate, $EndDate);
 	$stmt->execute();
 	$result = $stmt->get_result();

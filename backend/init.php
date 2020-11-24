@@ -11,11 +11,13 @@
 	);
 
 	include_once('poplicola.php');
+	include_once('sherlook.php');
 	include_once('geojson.php');
 	include_once('leaflet-php.php');
 	include_once('leaflet-php-props.php');
 	include_once('leaflet-php-dashboard.php');
 	include_once('stl.php');
+	include_once('common.php');
 	include_once('html_printing.php');
 	
 ?>
